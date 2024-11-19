@@ -4,6 +4,7 @@ import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import orderByStartup from './orderByFunction.js';
 import asyncHandler from './asyncHandlerFunction.js';
+import paginationHandler from './paginationHandler.js';
 // import { number } from 'superstruct';
 // import { CreateUser, PatchUser } from './structs.js';
 // import { assert } from 'superstruct';
@@ -14,9 +15,9 @@ const app = express();
 app.use(express.json());
 
 // BigInt 값을 문자열로 변환하여 JSON 응답 생성
-function replacer(key, value) {
+const replacer = (key, value) => {
   return typeof value === 'bigint' ? value.toString() : value;
-}
+};
 
 // 전체 기업 목록 조회
 app.get('/api/startups', asyncHandler(async (req, res) => {
@@ -32,13 +33,41 @@ app.get('/api/startups', asyncHandler(async (req, res) => {
     take: limitNum,
   });
 
+const responseData = await paginationHandler(startups, limitNum);
+
   // BigInt 값을 문자열로 변환하여 JSON 응답 생성
-  const serializedStartups = JSON.stringify(startups, replacer);
-  res.send(serializedStartups);
+  res.send(JSON.stringify(responseData, replacer));
 }));
 
+// 검색 기능(/search)
+// app.get("/api/startups/search", asyncHandler(async (req, res) => {
+//   const { keyword, offset = 0, limit = 10 } = req.query;
+
+//   const startup = await prisma.startup.findMany({
+//       skip: parseInt(offset),
+//       take: parseInt(limit),
+//       where: {
+//         OR: [
+//           { name: { contains: keyword, mode: 'insensitive' } },
+//           { description: { contains: keyword, mode: 'insensitive' } },
+//         ] 
+//       },
+//     });
+//   const serializedStartups = JSON.stringify(startup, replacer);
+//   res.send(serializedStartups);
+// }));
+
+/**
+ * id와 같은 동적 url은 search 기능이 있는 라우터 위에 있으면,
+ * search 기능 대시 작동하게 되므로 순서상 마지막에 두는 것이 좋다.
+ * 동적 url이란 :id와 같이 파라미터가 들어가는 url을 말한다.
+ * :id는 매우 포괄적인 패턴 매칭을 수행한다.
+ * (특정 경로를 제외한 거의 모든 문자열을 포착함)
+ * 따라서 좀 더 구체적인 라우터를 상단에 배치하고,
+ * 좀 더 포괄적인 라우터를 하단에 배치하는 것이 좋다.
+ */
 //특정 기업 상세 조회
-app.get("/startups/:id", async (req, res) => {
+app.get("/api/startups/:id", async (req, res) => {
   const { id } = req.params;
   const numId = parseInt(id, 10);
   try {
@@ -48,23 +77,6 @@ app.get("/startups/:id", async (req, res) => {
     const serializedStartups = JSON.stringify(startup, replacer); res.send(serializedStartups);
   } catch (error) { res.status(404).send({ message: error.message }); }
 });
-
-//검색 기능
-app.get("/startups/search", async (req, res) => {
-  const { searchKeyword, offset = 0, limit = 10 } = req.query;
-  try {
-    const startup = await prisma.startup.findMany({
-      orderBy: { id: "asc" },
-      skip: parseInt(offset),
-      take: parseInt(limit),
-      where: {
-        name: { contains: searchKeyword },
-      },
-    });
-    const serializedStartups = JSON.stringify(startup, replacer); res.send(serializedStartups);
-  } catch (error) { res.status(404).send({ message: error.message }); }
-})
-
 
 //기업 선택 횟수 조회
 app.get('/selection', async (req, res) => {
