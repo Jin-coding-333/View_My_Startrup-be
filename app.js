@@ -113,6 +113,6 @@ app.get('/selection', async (req, res) => {
 
 
 // 프론트랑 겹치니깐 8000으로 바꾼다.
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 8001;
 
 app.listen(port, () => console.log(`Server Started :${port}`));

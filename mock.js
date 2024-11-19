@@ -256,7 +256,7 @@ export const STARTUPS = [
     description: "기업 21는 전자상거래 기업입니다.",
     count: 0,
     image: null,
-  },
+    },
   {
     id: 22,
     name: "기업 22",
