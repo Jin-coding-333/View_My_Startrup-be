@@ -1,8 +1,9 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import orderByStartup from './orderByFunction.js';
+import asyncHandler from './asyncHandlerFunction.js';
 // import { number } from 'superstruct';
 // import { CreateUser, PatchUser } from './structs.js';
 // import { assert } from 'superstruct';
@@ -12,34 +13,13 @@ const prisma = new PrismaClient();
 const app = express();
 app.use(express.json());
 
-function asyncHandler(handler) {
-  return async function (req, res) {
-    try {
-      await handler(req, res);
-    } catch (e) {
-      if (e.name === 'StructError' ||
-        e instanceof Prisma.PrismaClientValidationError
-      ) {
-        res.status(400).send({ message: e.message });
-      } else if (
-        e instanceof Prisma.PrismaClientKnownRequestError &&
-        e.code === 'P2025'
-      ) {
-        res.sendStatus(404);
-      } else {
-        res.status(500).send({ message: e.message });
-      }
-    }
-  };
-}
-
 // BigInt 값을 문자열로 변환하여 JSON 응답 생성
 function replacer(key, value) {
   return typeof value === 'bigint' ? value.toString() : value;
 }
 
-//전체 기업 목록 조회
-app.get('/startups', asyncHandler(async (req, res) => {
+// 전체 기업 목록 조회
+app.get('/api/startups', asyncHandler(async (req, res) => {
   const { offset = 0, limit = 10, order = 'id' } = req.query;
   // validation은 값이 들어오자마자 검사를 해야 큰 실수를 줄일 수 있음.
   const offsetNum = parseInt(offset);
@@ -51,7 +31,7 @@ app.get('/startups', asyncHandler(async (req, res) => {
     skip: offsetNum,
     take: limitNum,
   });
-  
+
   // BigInt 값을 문자열로 변환하여 JSON 응답 생성
   const serializedStartups = JSON.stringify(startups, replacer);
   res.send(serializedStartups);

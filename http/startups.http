@@ -1,11 +1,11 @@
 ###
-GET http://localhost:8001/startups
+GET http://localhost:8001/api/startups?offset=5
 
 ###
-GET http://localhost:8001/startups/7
+GET http://localhost:8001/api/startups/7
 
 ###
-GET http://localhost:8001/selection
+GET http://localhost:8001/api/selection
 
 ###
-GEt http://localhost:8001/startups/search?코드
+GEt http://localhost:8001/api/startups/search?코드
