@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { CATEGORIES, STARTUPS, MOCK_INVESTORS, COMPARISONS} from "./mock.js";
+import { CATEGORIES, STARTUPS, MOCK_INVESTORS, COMPARISONS} from "../mock.js";
 
 const prisma = new PrismaClient();
 
