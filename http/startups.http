@@ -1,0 +1,11 @@
+###
+GET http://localhost:8001/startups
+
+###
+GET http://localhost:8001/startups/7
+
+###
+GET http://localhost:8001/selection
+
+###
+GEt http://localhost:8001/startups/search?코드
