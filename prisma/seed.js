@@ -1,11 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import { CATEGORIES, STARTUPS, MOCK_INVESTORS, COMPARISONS} from "../mock.js";
-
+import { CATEGORIES, STARTUPS} from "./mock.js";
+import { INVESTORS} from "./mocks/investors.js";
 const prisma = new PrismaClient();
 
 async function main() {
   // 테이블을 비우고 시퀀스를 초기화
-  // await prisma.$executeRaw`TRUNCATE TABLE "Selection" RESTART IDENTITY CASCADE`;
   await prisma.comparison.deleteMany();
   await prisma.mockInvestor.deleteMany();
   await prisma.startup.deleteMany();
@@ -24,16 +23,10 @@ async function main() {
   });
 
   await Promise.all(
-    MOCK_INVESTORS.map(async (mockInvestor) => {
+    INVESTORS.map(async (mockInvestor) => {
       await prisma.mockInvestor.create({data:mockInvestor});
     })
   );
-
-  // // Selection 데이터 삽입
-  // await prisma.selection.createMany({
-  //   data: SELECTIONS,
-  //   skipDuplicates: true,
-  // });
 
   // Comparison 데이터 삽입
   await prisma.comparison.createMany({
@@ -45,7 +38,6 @@ async function main() {
   await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"Category"', 'id'), (SELECT MAX(id) FROM "Category"))`;
   await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"Startup"', 'id'), (SELECT MAX(id) FROM "Startup"))`;
   await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"MockInvestor"', 'id'), (SELECT MAX(id) FROM "MockInvestor"))`;
-  // await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"Selection"', 'id'), (SELECT MAX(id) FROM "Selection"))`;
   await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"Comparison"', 'id'), (SELECT MAX(id) FROM "Comparison"))`;
 }
 
