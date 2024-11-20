@@ -58,6 +58,8 @@ app.get("/api/startups/search", asyncHandler(async (req, res) => {
   res.send(JSON.stringify(startups, replacer));
 }));
 
+// 내 기업과 비교 대상 기업들 비교하기(정렬, /api/startups/comparsion)
+
 /**
  * id와 같은 동적 url은 search 기능이 있는 라우터 위에 있으면,
  * search 기능 대시 작동하게 되므로 순서상 마지막에 두는 것이 좋다.
@@ -67,7 +69,7 @@ app.get("/api/startups/search", asyncHandler(async (req, res) => {
  * 따라서 좀 더 구체적인 라우터를 상단에 배치하고,
  * 좀 더 포괄적인 라우터를 하단에 배치하는 것이 좋다.
  */
-//특정 기업 상세 조회
+// 특정 기업 상세 조회(GET: /api/startups/{startupsId})
 app.get("/api/startups/:startupsId",
   asyncHandler(async (req, res) => {
 
