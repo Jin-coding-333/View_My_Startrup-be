@@ -33,29 +33,29 @@ app.get('/api/startups', asyncHandler(async (req, res) => {
     take: limitNum,
   });
 
-const responseData = await paginationHandler(startups, limitNum);
+const responseData = await paginationHandler(startups,offsetNum, limitNum);
 
   // BigInt 값을 문자열로 변환하여 JSON 응답 생성
   res.send(JSON.stringify(responseData, replacer));
 }));
 
-// 검색 기능(/search)
-// app.get("/api/startups/search", asyncHandler(async (req, res) => {
-//   const { keyword, offset = 0, limit = 10 } = req.query;
+// 전체 기업 검색 기능(/search)
+app.get("/api/startups", asyncHandler(async (req, res) => {
+  const { keyword, offset = 0, limit = 10 } = req.query;
 
-//   const startup = await prisma.startup.findMany({
-//       skip: parseInt(offset),
-//       take: parseInt(limit),
-//       where: {
-//         OR: [
-//           { name: { contains: keyword, mode: 'insensitive' } },
-//           { description: { contains: keyword, mode: 'insensitive' } },
-//         ] 
-//       },
-//     });
-//   const serializedStartups = JSON.stringify(startup, replacer);
-//   res.send(serializedStartups);
-// }));
+  const startup = await prisma.startup.findMany({
+      skip: parseInt(offset),
+      take: parseInt(limit),
+      where: {
+        OR: [
+          { name: { contains: keyword, mode: 'insensitive' } },
+          { description: { contains: keyword, mode: 'insensitive' } },
+        ] 
+      },
+    });
+  const serializedStartups = JSON.stringify(startup, replacer);
+  res.send(serializedStartups);
+}));
 
 /**
  * id와 같은 동적 url은 search 기능이 있는 라우터 위에 있으면,
