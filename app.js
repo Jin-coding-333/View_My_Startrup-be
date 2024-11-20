@@ -68,43 +68,23 @@ app.get("/api/startups/search", asyncHandler(async (req, res) => {
  * 좀 더 포괄적인 라우터를 하단에 배치하는 것이 좋다.
  */
 //특정 기업 상세 조회
-app.get("/api/startups/:id", async (req, res) => {
-  const { id } = req.params;
-  const numId = parseInt(id, 10);
-  try {
-    const startup = await prisma.startup.findUnique({
-      where: { id: numId },
+app.get("/api/startups/:startupsId",
+  asyncHandler(async (req, res) => {
+
+    const { startupsId } = req.params;
+    const idNum = parseInt(startupsId, 10);
+    const startup = await prisma.startup.findUniqueOrThrow({
+      where: { id: idNum },
     });
-    const serializedStartups = JSON.stringify(startup, replacer); res.send(serializedStartups);
-  } catch (error) { res.status(404).send({ message: error.message }); }
-});
+    res.send(JSON.stringify(startup, replacer));
+  }));
 
-//기업 선택 횟수 조회
-app.get('/selection', async (req, res) => {
-  const { offset = 0, limit = 10 } = req.query;
-  try {
-    const select = await prisma.startup.findMany({
-      select: {
-        name: true,
-        count: true,
-      },
-      skip: parseInt(offset),
-      take: parseInt(limit),
-      orderBy: { id: "asc" },
-    });
-    res.status(200).send(select);
-  } catch (error) { res.status(400).send({ message: error.message }); }
-})
+// 특정 기업에 투자하기(POST: /api/investmentts/{investmentId})
 
-//전체 투자 현황 조회
+// 투자 수정(PATCH: /api/investmentts/{investmentId})
 
 
-//특정기업에 투자하기
-
-
-
-
-// 프론트랑 겹치니깐 8000으로 바꾼다.
+// 프론트랑 겹치니깐 8000으로 바꿈.
 const port = process.env.PORT || 8001;
 
 app.listen(port, () => console.log(`Server Started :${port}`));
