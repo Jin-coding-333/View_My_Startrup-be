@@ -33,28 +33,29 @@ app.get('/api/startups', asyncHandler(async (req, res) => {
     take: limitNum,
   });
 
-const responseData = await paginationHandler(startups,offsetNum, limitNum);
+  const responseData = await paginationHandler(startups, offsetNum, limitNum);
 
   // BigInt 값을 문자열로 변환하여 JSON 응답 생성
   res.send(JSON.stringify(responseData, replacer));
 }));
 
-// 전체 기업 검색 기능(/search)
-app.get("/api/startups", asyncHandler(async (req, res) => {
+// 전체 기업 검색 기능
+app.get("/api/startups/search", asyncHandler(async (req, res) => {
   const { keyword, offset = 0, limit = 10 } = req.query;
+  const offsetNum = parseInt(offset);
+  const limitNum = parseInt(limit);
 
-  const startup = await prisma.startup.findMany({
-      skip: parseInt(offset),
-      take: parseInt(limit),
-      where: {
-        OR: [
-          { name: { contains: keyword, mode: 'insensitive' } },
-          { description: { contains: keyword, mode: 'insensitive' } },
-        ] 
-      },
-    });
-  const serializedStartups = JSON.stringify(startup, replacer);
-  res.send(serializedStartups);
+  const startups = await prisma.startup.findMany({
+    skip: offsetNum,
+    take: limitNum,
+    where: {
+      OR: [
+        { name: { contains: keyword, mode: 'insensitive' } },
+        { description: { contains: keyword, mode: 'insensitive' } },
+      ]
+    },
+  });
+  res.send(JSON.stringify(startups, replacer));
 }));
 
 /**
