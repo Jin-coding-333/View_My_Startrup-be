@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { COMPARISONS } from "./mocks/comparisons.js";
 import { INVESTORS } from "./mocks/investors.js";
 import { STARTUPS } from "./mocks/startups.js";
 import { CATEGORIES } from "./mocks/startups.js";
@@ -8,7 +7,6 @@ const prisma = new PrismaClient();
 
 async function main() {
   // 테이블을 비우고 시퀀스를 초기화
-  await prisma.comparison.deleteMany();
   await prisma.mockInvestor.deleteMany();
   await prisma.startup.deleteMany();
   await prisma.category.deleteMany();
@@ -31,17 +29,10 @@ async function main() {
     })
   );
 
-  // Comparison 데이터 삽입
-  await prisma.comparison.createMany({
-    data: COMPARISONS,
-    skipDuplicates: true,
-  });
-
   // 각 테이블의 시퀀스를 재설정
   await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"Category"', 'id'), (SELECT MAX(id) FROM "Category"))`;
   await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"Startup"', 'id'), (SELECT MAX(id) FROM "Startup"))`;
   await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"MockInvestor"', 'id'), (SELECT MAX(id) FROM "MockInvestor"))`;
-  await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"Comparison"', 'id'), (SELECT MAX(id) FROM "Comparison"))`;
 }
 
 main()

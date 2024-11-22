@@ -1,0 +1,20 @@
+###
+GET http://localhost:8001/api/startups?
+
+###
+GET http://localhost:8001/api/startups/
+
+###
+GET http://localhost:8001/api/startups/7
+
+###
+GEt http://localhost:8001/api/startups/search?keyword=코드
+
+###
+GET http://localhost:8001/api/selections
+
+###
+GET http://localhost:8001/api/investments
+
+###
+GET http://localhost:8001/api/startups/2/rank

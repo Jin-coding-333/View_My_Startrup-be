@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
+import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import orderByStartup from './orderByFunction.js';
 import asyncHandler from './asyncHandlerFunction.js';
@@ -32,6 +33,7 @@ app.get('/api/startups', asyncHandler(async (req, res) => {
     orderBy,
     skip: offsetNum,
     take: limitNum,
+    include: { Category: true}
   });
 
   const responseData = await paginationHandler(startups, offsetNum, limitNum);
@@ -46,6 +48,15 @@ app.get("/api/startups/search", asyncHandler(async (req, res) => {
   const offsetNum = parseInt(offset);
   const limitNum = parseInt(limit);
 
+  const totalCount = await prisma.startup.count({
+    where: {
+      OR: [
+        { name: { contains: keyword, mode: 'insensitive' } },
+        { description: { contains: keyword, mode: 'insensitive' } },
+      ]
+    },
+  });
+
   const startups = await prisma.startup.findMany({
     skip: offsetNum,
     take: limitNum,
@@ -56,7 +67,11 @@ app.get("/api/startups/search", asyncHandler(async (req, res) => {
       ]
     },
   });
-  res.send(JSON.stringify(startups, replacer));
+
+  const totalPage = Math.ceil(totalCount / limitNum);
+  const hasNextPage = offsetNum + limitNum < totalCount;
+  const responseData = {totalCount, startups, totalPage, hasNextPage};
+  res.send(JSON.stringify(responseData, replacer));
 }));
 
 // 내 기업과 비교 대상 기업들 비교하기(정렬, /api/startups/comparsion)
@@ -86,6 +101,7 @@ app.get("/api/startups/:startupsId",
 
 // 투자 수정(PATCH: /api/investmentts/{investmentId})
 
+// 투자 삭제(DELETE: /api/investmentts/{investmentId})
 
 // 프론트랑 겹치니깐 8000으로 바꿈.
 const port = process.env.PORT || 8001;
